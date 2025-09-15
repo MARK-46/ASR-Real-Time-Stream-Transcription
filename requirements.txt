@@ -1,0 +1,4 @@
+gradio
+numpy
+nemo_toolkit[asr]
+scipy
