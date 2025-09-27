@@ -2,3 +2,7 @@ gradio
 numpy
 nemo_toolkit[asr]
 scipy
+ml_dtypes
+deep_translator
+noisereduce
+modelscope
