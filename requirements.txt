@@ -1,8 +1,9 @@
-gradio
-numpy
-nemo_toolkit[asr]
-scipy
-ml_dtypes
-deep_translator
-noisereduce
-modelscope
+gradio==5.46.0
+numpy==1.26.4
+nemo_toolkit[asr]==2.4.0
+ml_dtypes==0.5.3
+deep_translator==1.11.4
+
+huggingface-hub==0.33.2
+groq==0.31.1
+faster-whisper==1.1.1

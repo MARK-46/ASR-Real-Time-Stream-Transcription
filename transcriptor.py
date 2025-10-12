@@ -41,8 +41,7 @@ class Transcription:
             audio_chunk = self.__resample_audio(audio_chunk, audio_sr, self.sample_rate)
 
             # Normalize
-            # audio_chunk = self.__normalize_audio(audio_chunk)
-            audio_chunk = self.__normalize_audio(audio_chunk, self.sample_rate)
+            audio_chunk = self.__normalize_audio(audio_chunk)
 
             # Write in to file
             self.session_writer.write(audio_chunk)
@@ -63,29 +62,20 @@ class Transcription:
         resampled = torchaudio.functional.resample(tensor, orig_freq=orig_sr, new_freq=target_sr)
         return resampled.squeeze(0).numpy()
     
-    # def __normalize_audio(self, audio_chunk: np.ndarray, target_level: float = 0.9) -> np.ndarray:
-    #     # RMS нормализация с ограничением пиков
-    #     rms = np.sqrt(np.mean(audio_chunk**2))
-    #     if rms < 1e-6:
-    #         return audio_chunk
-    #
-    #     # коэффициент усиления
-    #     gain = target_level / rms
-    #     normalized = audio_chunk * gain
-    #
-    #     # предотвращение клиппинга
-    #     peak = np.max(np.abs(normalized))
-    #     if peak > 1.0:
-    #         normalized = normalized / peak
-    #
-    #     return normalized
+    def __normalize_audio(self, audio_chunk: np.ndarray, target_level: float = 0.9) -> np.ndarray:
+        # RMS нормализация с ограничением пиков
+        rms = np.sqrt(np.mean(audio_chunk**2))
+        if rms < 1e-6:
+            return audio_chunk
     
-    def __normalize_audio(self, audio_chunk: np.ndarray, sample_rate: int) -> np.ndarray:
-        tensor = torch.from_numpy(audio_chunk).unsqueeze(0)  # [1, T]
-        effects = [
-            ["gain", "-n"],  # normalize to 0 dBFS peak
-        ]
-        processed, _ = torchaudio.sox_effects.apply_effects_tensor(
-            tensor, sample_rate, effects
-        )
-        return processed.squeeze(0).numpy()
+        # коэффициент усиления
+        gain = target_level / rms
+        normalized = audio_chunk * gain
+    
+        # предотвращение клиппинга
+        peak = np.max(np.abs(normalized))
+        if peak > 1.0:
+            normalized = normalized / peak
+    
+        return normalized
+    
