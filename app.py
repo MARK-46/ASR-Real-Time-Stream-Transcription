@@ -3,15 +3,17 @@
 import numpy as np
 import gradio as gr
 
+from asr import Transcriptor
 from translator import Translator
-from transcriptor import Transcription
+from session_writer import SessionWriter
 
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8080
 SAMPLE_RATE = 16_000
 
-transcriptor = Transcription(sample_rate=SAMPLE_RATE)
 translator = Translator(source='en', target='ru')
+transcriptor = Transcriptor(model_name="nvidia/parakeet-tdt-0.6b-v3", sample_rate=SAMPLE_RATE)
+session_writer = SessionWriter(location='./sessions', sample_rate=SAMPLE_RATE, channels=1)
 
 def stream_fn(audio: np.ndarray):
     try:
@@ -19,20 +21,11 @@ def stream_fn(audio: np.ndarray):
             raise ValueError("Audio input cannot be None")
         
         audio_sr, audio_chunk = audio
-
-        if not isinstance(audio_chunk, np.ndarray):
-            raise TypeError("Audio data must be a numpy array")
-
-        if audio_chunk.size == 0:
-            raise TypeError("Empty audio chunk received")
+        audio_chunk = transcriptor.prepare_audio(audio_sr=audio_sr, audio_chunk=audio_chunk)
+        session_writer.write(audio_chunk)
         
-        text_en = transcriptor.process_audio(audio_sr=audio_sr, audio_chunk=audio_chunk)
-
-        # add en text to translate
-        translator.append_text(text_en)
-
-        # get all translated textes
-        text_ru = translator.translate()
+        text_en = transcriptor.transcribe_audio(audio_chunk=audio_chunk)
+        text_ru = translator.translate(text_en)
 
         return (text_ru)
     except Exception as e:
@@ -133,11 +126,11 @@ with gr.Blocks(
         fn=stream_fn,
         inputs=[input],
         outputs=[output],
-        stream_every=10.0,
+        stream_every=15.0,
     )
 
-    input.start_recording(fn=transcriptor.start, inputs=None, outputs=None)
-    input.stop_recording(fn=transcriptor.stop, inputs=None, outputs=None)
+    input.start_recording(fn=session_writer.open, inputs=None, outputs=None)
+    input.stop_recording(fn=session_writer.close, inputs=None, outputs=None)
 
     print("[I] Launching UI with enhanced audio processing")
     web.launch(debug=False, server_name=SERVER_HOST, server_port=SERVER_PORT)

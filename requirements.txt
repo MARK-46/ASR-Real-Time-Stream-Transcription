@@ -1,9 +1,6 @@
-gradio==5.46.0
 numpy==1.26.4
-nemo_toolkit[asr]==2.4.0
+gradio==5.46.0
 ml_dtypes==0.5.3
+torchaudio==2.8.0
 deep_translator==1.11.4
-
-huggingface-hub==0.33.2
-groq==0.31.1
-faster-whisper==1.1.1
+nemo_toolkit[asr]==2.4.0

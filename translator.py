@@ -22,10 +22,9 @@ class Translator:
             </div>
         """
 
-    def append_text(self, text: str):
+    def translate(self, text: str):
         self.buffered_texts.append(text)
-
-    def translate(self):
+        
         text = " ".join(self.buffered_texts).strip()
         sentences = re.findall(r'[^.!?]+[.!?]?', text)
         if sentences:
