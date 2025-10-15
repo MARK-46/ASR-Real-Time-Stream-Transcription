@@ -287,6 +287,8 @@ transcriptor = ImprovedTranscriptorWithVAD(
     min_speech_chunks=1          # Минимум 1 чанк речи (5 сек)
 )
 
+full__text = []
+
 def stream_fn(audio):
     global transcriptor
     if audio is None:
@@ -300,8 +302,9 @@ def stream_fn(audio):
     
     text = transcriptor.transcribe_audio(audio_chunk=audio_chunk, in_rate=audio_sr)
     if text:
+        full__text.append(text)
         print(f'> {text}')
-    return text
+    return '\n'.join(full__text)
 
 with gr.Blocks(
     title="Live Transcription with VAD",
