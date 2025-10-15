@@ -33,7 +33,17 @@ class SessionWriter:
             return
         try:
             self.writer.write(audio_chunk)
-            print(f"[I] Written chunk of size: {len(audio_chunk)} samples")
+            print(f"[I] Written chunk of size: {len(audio_chunk)}")
+
+            writer2 = sf.SoundFile(
+                os.path.join(self.location, f"chunk-{int(time.time())}.wav"), 
+                mode="w", 
+                samplerate=self.sample_rate, 
+                channels=self.channels,
+            )
+            writer2.write(audio_chunk)
+            writer2.close()
+
         except Exception as e:
             print(f"[E] Failed to write audio chunk: {e}")
 

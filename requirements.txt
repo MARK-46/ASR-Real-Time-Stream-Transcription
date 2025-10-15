@@ -1,6 +1,8 @@
-numpy==1.26.4
-gradio==5.46.0
-ml_dtypes==0.5.3
-torchaudio==2.8.0
-deep_translator==1.11.4
-nemo_toolkit[asr]==2.4.0
+soxr
+torch
+gradio
+ml_dtypes
+torchaudio
+silero-vad
+deep_translator
+nemo_toolkit[asr]
