@@ -1,53 +1,18 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
-import io
-import os
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-MODEL_NAME = "openai/gpt-oss-20b"
+device = 'cpu' #or 'cpu' for translate on cpu
+torch.set_default_device(device)
 
-# Патчинг open() для корректного чтения UTF-8 на Windows
-import builtins
-open_builtin = open
-def open_utf8(path, *args, **kwargs):
-    if path.endswith("chat_template.jinja") and "encoding" not in kwargs:
-        kwargs["encoding"] = "utf-8"
-    return open_builtin(path, *args, **kwargs)
-builtins.open = open_utf8
+model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2", torch_dtype="auto", trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2", trust_remote_code=True)
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME,
-    device_map="auto",
-    torch_dtype="auto"
-)
+def translate(text: str):
+    prefix = 'Correct errors in the text, clarify and improve its meaning, then translate from English to Russian, preserving accuracy and natural language: '
+    src_text = prefix + text
+    inputs = tokenizer(src_text, return_tensors="pt", return_attention_mask=False)
+    outputs = model.generate(**inputs, max_length=200)
+    text = tokenizer.batch_decode(outputs)[0]
+    print(text)
 
-generator = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer
-)
-
-def correct_transcript(raw_text: str) -> str:
-    prompt = f"""
-Ты — профессиональный корректор речи.
-Исправь ошибки распознавания, грамматики и пунктуации, не меняя смысла.
-Текст:
-{raw_text}
-
-Исправленный вариант:
-"""
-    result = generator(
-        prompt,
-        max_new_tokens=256,
-        temperature=0.2,
-        do_sample=False,
-        pad_token_id=tokenizer.eos_token_id
-    )[0]["generated_text"]
-
-    if "Исправленный вариант:" in result:
-        result = result.split("Исправленный вариант:")[-1].strip()
-    return result
-
-
-if __name__ == "__main__":
-    draft = "здравствуйте это эээ компания бета хотели уточнить по заказ тридцать два"
-    print(correct_transcript(draft))
+translate("shell we start or need to wait?")
