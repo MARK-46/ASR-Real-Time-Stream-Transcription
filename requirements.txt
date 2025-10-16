@@ -4,5 +4,7 @@ gradio
 ml_dtypes
 torchaudio
 silero-vad
+accelerate
+transformers
 deep_translator
 nemo_toolkit[asr]
