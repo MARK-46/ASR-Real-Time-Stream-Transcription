@@ -1,0 +1,28 @@
+footer {
+    display:none !important;
+} 
+
+.audio-container > .top-panel {
+    display:none!important;
+} 
+
+.mic-select {
+    max-width: none;
+}
+
+.status-indicator {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
