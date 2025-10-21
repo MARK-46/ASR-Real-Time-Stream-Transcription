@@ -1,3 +1,6 @@
+import os
+os.environ["NEMO_CACHE_DIR"] = "/tmp/nemo_models_cache"
+
 import torch
 import numpy as np
 

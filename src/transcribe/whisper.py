@@ -1,3 +1,6 @@
+import os
+os.environ["TRANSFORMERS_CACHE"] = "/tmp/hf_models_cache"
+
 import torch
 import numpy as np
 
